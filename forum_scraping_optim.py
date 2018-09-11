@@ -33,6 +33,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import pandas as pd
+from datetime import date as ddt
 #import itertools
 from itertools import *
 import time
@@ -43,15 +44,17 @@ options = webdriver.ChromeOptions()
  
  
 driver = webdriver.Chrome('/Users/Gauthier/Documents/CoursENSAE/3A/MOOC/Applied_marchine_learning_in_python/chromedriver') #replace with .Firefox(), or with the browser of your choice
-url = 'bitcointalk.org/index.php?topic=2851721.0;all'
-url= 'bitcointalk.org/index.php?topic=454795.0;all'
+# Je teste sur plein d'URL
+url = 'bitcointalk.org/index.php?topic=2851721.0'
+url= 'bitcointalk.org/index.php?topic=454795.0'
+#Pas de ;all fonctionnel sur celle ci:
+url = 'bitcointalk.org/index.php?topic=4638042.0'
+url = 'bitcointalk.org/index.php?topic=4456473.0'
  
-driver.get("http://"+url.rstrip())
+driver.get("http://"+url.rstrip()+";all")
 
  
 #%% 
-a=driver.find_elements_by_id("quickModForm")
- 
 b =driver.find_elements_by_id("quickModForm")[0].find_elements_by_tag_name("tr")
  
 #%% Identifying each post
@@ -66,44 +69,55 @@ class_page = l[0]
 
 c = driver.find_elements_by_class_name(class_page)
 
-#%% Collecting post text
-c[0].find_element_by_class_name("post").text
+#%% Collecting information
+
 post = []
- 
-for k in c :
-    post.append(k.find_element_by_class_name("post").text)
-    
-#%% Collecting information about the member
 id = []
 status = []
 activity = []
 merit = []
+datetime = []
 i=1
+alert=np.nan
 
-for k in c :
+
+for k in c :    
+    
+    # Debuging tool
+    print(i)
+    
+    # Collecting the post
+    post.append(k.find_element_by_class_name("post").text)
+    
+    
+    # Colleting info about the member
     # in case there is "copper membership", we have to shift
     shift=0
-    print(i)
     info = k.find_element_by_class_name("poster_info").text.splitlines()
     if info[2]!='':
         shift=1
-        print('shift')
-    print(info)
     id.append(info[0])
     status.append(info[1])
     activity.append(pd.to_numeric(re.findall(r'\d+',info[5+shift])[0]))
     merit.append(pd.to_numeric(re.findall(r'\d+',info[6+shift])[0]))
+    
+    if i%10==0:
+        if (len(post)==len(id)==len(status)==len(activity)==len(merit))==False:
+            alert = i
     i=i+1
     
-#%% Collecting information about the date
-datetime = []
+    # Adding information about the date
+    postdate = k.find_element_by_class_name("td_headerandpost").find_element_by_class_name("smalltext").text
+    postdate=postdate.replace('Today',(str(ddt.today().year)+'-'+str(ddt.today().month)+'-'+str(ddt.today().day)))
+    datetime.append(pd.to_datetime(postdate))
 
-for k in c :
-    datetime.append(pd.to_datetime(k.find_element_by_class_name("td_headerandpost").find_element_by_class_name("smalltext").text))
+if np.isnan(alert)==False:
+    print('problem happened around', i)
+    
 
 #%% Puting everything together
 df = pd.DataFrame(
-        {#'datetime':datetime,
+        {'datetime':datetime,
          'id':id,
          'status':status,
          'activity':activity,
@@ -111,4 +125,4 @@ df = pd.DataFrame(
          'post':post})
     
 #%% We exit the driver
-info[3]==''
+driver.quit()
