@@ -76,6 +76,9 @@ finally:
 # We loop to collect from page 2 to 5O0
 # how to use : to go until page 500, type range (1,500)
 for k in range (1,500):
+    
+    if (k%25)==0:
+        time.sleep(3)
 
     driver.get("http://"+url.rstrip()+str(k*40))
     try:
@@ -84,7 +87,7 @@ for k in range (1,500):
         )
     finally:
         b =driver.find_elements(By.XPATH, '//*[@id="bodyarea"]/div[2]/table')[0]
-        for l in range (2):
+        for l in range (40):
             xpath =  '//*[@id="bodyarea"]/div[2]/table/tbody/tr['+str(l+2)+']/td[3]'
             xpath1 =  '//*[@id="bodyarea"]/div[2]/table/tbody/tr['+str(l+2)+']/td[5]'
             c = b.find_elements(By.XPATH, xpath)[0].find_elements_by_xpath('.//a')

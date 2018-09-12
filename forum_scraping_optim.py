@@ -123,7 +123,7 @@ def page_information_extraction(b, post, id, status, activity, merit, datetime):
     for k in c :    
         
         # Debuging tool
-        print(i)
+        #print(i)
         
         # Collecting the post
         post.append(k.find_element_by_class_name("post").text)
@@ -185,13 +185,20 @@ count=0
 
 
 for i in range(30):
+    print(i)
     if (int(thread[i][1])<= 475):
         url = thread[i][0].rstrip()+";all"
         b = get_url(url)
         [post, id, status, activity, merit, datetime] = page_information_extraction(b, post, id, status, activity, merit, datetime)
     else:
-        print ('il faut le traiter autrement')
-        count +=1
+        #Boucle à vérifier
+        nb_page = int(int(thread[i][1])/20)+1
+        for j in range (nb_page):
+            print(j)
+            url = thread[i][0].rstrip()+str(j*20)
+            b = get_url(url)
+            [post, id, status, activity, merit, datetime] = page_information_extraction(b, post, id, status, activity, merit, datetime)
+
 
 
 #% Puting everything together
