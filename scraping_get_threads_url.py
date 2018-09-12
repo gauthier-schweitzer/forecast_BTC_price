@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Sep 10 17:42:31 2018
+
+The following script extracts the threads urls from a given forum
  
 @author: gauthier
-"""
- 
+""" 
+
 "https://bitcointalk.org/index.php?board=1.0"
  
  
@@ -13,7 +15,7 @@ a=os.getcwd(); # Prints the working directory
 print('Current working directory:',a)
  
 ##Change working directory
-#os.chdir('c:\\Users\uname\desktop\python') # Provide the path here
+os.chdir('/Users/Gauthier/Documents/GitHub/forecast') # Provide the path here
 #a=os.getcwd(); # Prints the working directory
 #print('Current working directory:',a)
  
@@ -48,6 +50,8 @@ driver = webdriver.Chrome('/Users/Gauthier/Documents/CoursENSAE/3A/MOOC/Applied_
 #driver = webdriver.Chrome(executable_path='C:\\Users\\Gauthier\\Anaconda3\\chromedriver.exe')#, chrome_options=options)
 
 thread=[]
+post_number=[]
+
 url = 'bitcointalk.org/index.php?board=1.'
 
 # We want to collect 500 pages (after that, last message before may 2017)
@@ -62,10 +66,11 @@ finally:
     b =driver.find_elements(By.XPATH, '//*[@id="bodyarea"]/div[3]/table')[0]
     for l in range (40):
         xpath =  '//*[@id="bodyarea"]/div[3]/table/tbody/tr['+str(l+2)+']/td[3]'
-        #c = b.find_elements_by_class_name("windowbg")[3*(l+1)].find_elements_by_xpath('.//a')
-        #thread.append(c[0].get_attribute('href'))
+        xpath1 =  '//*[@id="bodyarea"]/div[3]/table/tbody/tr['+str(l+2)+']/td[5]'
         c = b.find_elements(By.XPATH, xpath)[0].find_elements_by_xpath('.//a')
+        d = int(b.find_elements(By.XPATH, xpath1)[0].text)
         thread.append(c[0].get_attribute('href'))
+        post_number.append(str(d+1))
 
 
 # We loop to collect from page 2 to 5O0
@@ -79,9 +84,20 @@ for k in range (1,500):
         )
     finally:
         b =driver.find_elements(By.XPATH, '//*[@id="bodyarea"]/div[2]/table')[0]
-        for l in range (40):
+        for l in range (2):
             xpath =  '//*[@id="bodyarea"]/div[2]/table/tbody/tr['+str(l+2)+']/td[3]'
+            xpath1 =  '//*[@id="bodyarea"]/div[2]/table/tbody/tr['+str(l+2)+']/td[5]'
             c = b.find_elements(By.XPATH, xpath)[0].find_elements_by_xpath('.//a')
             thread.append(c[0].get_attribute('href'))
+            d = int(b.find_elements(By.XPATH, xpath1)[0].text)
+            post_number.append(str(d+1))
 driver.quit()
 
+#%% Export to csv
+with open('export_url.csv', 'w', newline='') as myfile1:
+     wr = csv.writer(myfile1, quoting=csv.QUOTE_ALL)
+     wr.writerow(thread)
+     
+ with open('export_post_number.csv', 'w', newline='') as myfile2:
+     wr = csv.writer(myfile2, quoting=csv.QUOTE_ALL)
+     wr.writerow(post_number)
