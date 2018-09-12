@@ -94,10 +94,8 @@ for k in range (1,500):
 driver.quit()
 
 #%% Export to csv
-with open('export_url.csv', 'w', newline='') as myfile1:
-     wr = csv.writer(myfile1, quoting=csv.QUOTE_ALL)
-     wr.writerow(thread)
+with open('export.csv', 'w', newline='') as myfile:
+     wr = csv.writer(myfile)
+     wr.writerows(zip(thread, post_number))
+myfile.close()
      
- with open('export_post_number.csv', 'w', newline='') as myfile2:
-     wr = csv.writer(myfile2, quoting=csv.QUOTE_ALL)
-     wr.writerow(post_number)
